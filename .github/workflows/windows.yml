@@ -1,0 +1,46 @@
+
+name: eShopOnWeb - Build and Publish Artifact
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eshoponweb-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compile on Windows self-hosted runner
+    runs-on: [self-hosted, windows, x64]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Restore NuGet packages
+        shell: pwsh
+        run: dotnet restore .\eShopOnWeb.slnx
+
+      - name: Build solution
+        shell: pwsh
+        run: dotnet build .\eShopOnWeb.slnx --configuration Release --no-restore
+
+      - name: Publish build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: eshoponweb-build-${{ github.run_number }}
+          path: src/**/bin/Release/**
+          if-no-files-found: error
+          retention-days: 7
