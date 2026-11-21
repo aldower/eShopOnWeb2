@@ -30,11 +30,11 @@ jobs:
           global-json-file: global.json
 
       - name: Restore NuGet packages
-        shell: pwsh
+        shell: powershell
         run: dotnet restore .\eShopOnWeb.slnx
 
       - name: Build solution
-        shell: pwsh
+        shell: powershell
         run: dotnet build .\eShopOnWeb.slnx --configuration Release --no-restore
 
       - name: Publish build artifact
